@@ -1,7 +1,8 @@
+pub(crate) mod macros;
+mod node;
+
 #[cfg(test)]
 mod tests;
-
-mod node;
 
 use std::boxed::Box;
 use core::option::Option;
@@ -122,5 +123,47 @@ impl<T> SinglyLinkedList<T> {
 
         self.len += 1;
         self.head = Some(ptr);
+    }
+
+    /// Pushes a new [`Node`] with the coresponding `value` to the `back` of the list, making the list's last [`Node`] the new [`Node`].
+    /// 
+    /// ## Example
+    /// ```rust
+    /// let mut list = SinglyLinkedList::new();
+    /// 
+    /// list.push_back(4);
+    /// list.push_back(5);
+    /// list.push_back(6);
+    /// 
+    /// assert_eq!(list.front(), Some(&4));
+    /// ```
+    #[inline]
+    pub fn push_back(&mut self, value: T) {
+        let ptr = unsafe {
+            NonNull::new_unchecked(
+                Box::into_raw(Node::new(value).into_box())
+            )
+        };
+
+        match self.head {
+            Some(x) => unsafe {
+                let mut current = Some(x);
+
+                while let Some(mut x) = current {
+                    let m = x.as_mut();
+
+                    if m.next.is_none() {
+                        m.next = Some(ptr);
+                        break;
+                    }
+
+                    current = m.next;
+                }
+            },
+
+            None => self.head = Some(ptr),
+        }
+
+        self.len += 1
     }
 }

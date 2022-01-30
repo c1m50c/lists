@@ -12,14 +12,19 @@ fn new() {
 
 #[test]
 fn front() {
-    let mut list = SinglyLinkedList::new();
+    let mut list = sl_list![6, 7, 0];
     
-    list.push_front(6);
-    list.push_front(7);
-    list.push_front(0);
+    assert_eq!(list.front_mut(), Some(&mut 6));
+    assert_eq!(list.front(), Some(&6));
+}
 
-    assert_eq!(list.front_mut(), Some(&mut 0));
-    assert_eq!(list.front(), Some(&0));
+
+#[test]
+fn back() {
+    let mut list = sl_list![6, 7, 0];
+    
+    assert_eq!(list.back_mut(), Some(&mut 0));
+    assert_eq!(list.back(), Some(&0));
 }
 
 
@@ -86,4 +91,13 @@ fn eq() {
     let list_b = sl_list![1, 2, 3, 4, 5];
 
     assert_eq!(list_a, list_b);
+}
+
+
+#[test]
+fn remove_front() {
+    let mut list = sl_list![1, 2, 3];
+    list.remove_front();
+
+    assert_eq!(list, sl_list![2, 3]);
 }

@@ -15,7 +15,10 @@ use core::fmt;
 
 /// A one-directional linked list, known more commonly as a [`SinglyLinkedList`].
 pub struct SinglyLinkedList<T> {
+    /// [`Node`] at the `front` of the [`SinglyLinkedList`].
     head: Option<NonNull<Node<T>>>,
+
+    /// Length of the [`SinglyLinkedList`], represents how many [`Node`]s are contained within.
     len: usize,
 }
 
@@ -45,6 +48,7 @@ impl<T> ExactSizeIterator for Iter<T> {  }
 
 
 impl<T> SinglyLinkedList<T> {
+    /// Constructs a new, empty, [`SinglyLinkedList`].
     #[inline]
     pub const fn new() -> Self {
         return Self {
@@ -70,19 +74,14 @@ impl<T> SinglyLinkedList<T> {
         return self.len;
     }
 
-    /// Clears the [`SinglyLinkedList`] settings its fields back to the default values.
+    /// Clears the [`SinglyLinkedList`] settings its fields back to their default values.
     /// 
     /// ## Example
     /// ```rust
-    /// let mut list = SinglyLinkedList::new();
+    /// let mut list = sl_list![1, 2, 3, 4, 5];
+    /// list.clear();
     /// 
-    /// list.push_front(4);
-    /// list.push_front(0);
-    /// list.push_front(4);
-    /// assert_eq!(list.len(), 3);
-    /// 
-    /// list.clear()
-    /// assert_eq!(list.len(), 0)
+    /// assert_eq!(list, SinglyLinkedList::<i32>::new());
     /// ```
     #[inline]
     pub fn clear(&mut self) {
@@ -90,13 +89,11 @@ impl<T> SinglyLinkedList<T> {
     }
 
     /// Returns a reference to the [`Node`] at the `front` of the [`SinglyLinkedList`], also known as the `head`.
+    /// Time complexity is `O(1)`.
     /// 
     /// ## Example
     /// ```rust
-    /// let mut list = SinglyLinkedList::new();
-    /// 
-    /// list.push_front(1);
-    /// list.push_front(2);
+    /// let list = sl_list![2, 4, 0];
     /// 
     /// assert_eq!(list.front(), Some(&2));
     /// ```
@@ -108,14 +105,40 @@ impl<T> SinglyLinkedList<T> {
         };
     }
 
-    /// Returns a mutable reference to the [`Node`] at the `front` of the [`SinglyLinkedList`], also known as the `head`.
+    /// Returns a reference to the [`Node`] at the `back` of the [`SinglyLinkedList`], also known as the `tail`.
+    /// Time complexity is `O(n)`.
     /// 
     /// ## Example
     /// ```rust
-    /// let mut list = SinglyLinkedList::new();
+    /// let list = sl_list![2, 4, 0];
     /// 
-    /// list.push_front(1);
-    /// list.push_front(2);
+    /// assert_eq!(list.back(), Some(&0));
+    /// ```
+    #[inline]
+    pub fn back(&self) -> Option<&T> {
+        if let Some(ptr) = self.head {
+            let mut current = Some(ptr);
+
+            while let Some(ptr) = current {
+                let node = unsafe { ptr.as_ref() };
+
+                if node.next.is_none() {
+                    return Some(&node.value);
+                }
+
+                current = node.next;
+            }
+        }
+
+        return None;
+    }
+
+    /// Returns a mutable reference to the [`Node`] at the `front` of the [`SinglyLinkedList`], also known as the `head`.
+    /// Time complexity is `O(1)`.
+    /// 
+    /// ## Example
+    /// ```rust
+    /// let mut list = sl_list![2, 4, 0];
     /// 
     /// assert_eq!(list.front(), Some(&mut 2));
     /// ```
@@ -127,7 +150,36 @@ impl<T> SinglyLinkedList<T> {
         };
     }
 
+    /// Returns a mutable reference to the [`Node`] at the `back` of the [`SinglyLinkedList`], also known as the `tail`.
+    /// Time complexity is `O(n)`.
+    /// 
+    /// ## Example
+    /// ```rust
+    /// let mut list = sl_list![2, 4, 0];
+    /// 
+    /// assert_eq!(list.back(), Some(&mut 0));
+    /// ```
+    #[inline]
+    pub fn back_mut(&mut self) -> Option<&mut T> {
+        if let Some(ptr) = self.head {
+            let mut current = Some(ptr);
+
+            while let Some(mut ptr) = current {
+                let node = unsafe { ptr.as_mut() };
+
+                if node.next.is_none() {
+                    return Some(&mut node.value);
+                }
+
+                current = node.next;
+            }
+        }
+
+        return None;
+    }
+
     /// Pushes a new [`Node`] with the coresponding `value` to the `front` of the list, making the list's `head` the new [`Node`].
+    /// Time complexity is `O(1)`.
     /// 
     /// ## Example
     /// ```rust
@@ -153,6 +205,7 @@ impl<T> SinglyLinkedList<T> {
     }
 
     /// Pushes a new [`Node`] with the coresponding `value` to the `back` of the list, making the list's last [`Node`] the new [`Node`].
+    /// Time complexity is `O(n)`.
     /// 
     /// ## Example
     /// ```rust
@@ -195,6 +248,7 @@ impl<T> SinglyLinkedList<T> {
     }
 
     /// Removes the [`Node`] at the `front` of the list and returns its `value` field.
+    /// Time complexity is `O(1)`.
     /// 
     /// ## Example
     /// ```rust
@@ -216,6 +270,21 @@ impl<T> SinglyLinkedList<T> {
 
             None => None,
         };
+    }
+
+    /// Removes the [`Node`] at the `front` of the list.
+    /// Time complexity is `O(1)`.
+    /// 
+    /// ## Example
+    /// ```rust
+    /// let mut list = sl_list[1, 2, 3];
+    /// list.remove_front();
+    /// 
+    /// assert_eq!(list, sl_list[2, 3]);
+    /// ```
+    #[inline]
+    pub fn remove_front(&mut self) {
+        let _ = self.pop_front();
     }
 }
 

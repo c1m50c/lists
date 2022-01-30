@@ -4,10 +4,13 @@ mod node;
 #[cfg(test)]
 mod tests;
 
-use std::boxed::Box;
-use core::option::Option;
-use core::ptr::NonNull;
 use node::Node;
+use std::boxed::Box;
+use core::ptr::{NonNull, read as ptr_read};
+use core::iter::{Iterator, IntoIterator, ExactSizeIterator};
+use core::cmp::{Eq, PartialEq};
+use core::option::Option;
+use core::fmt;
 
 
 /// A one-directional linked list, known more commonly as a [`SinglyLinkedList`].
@@ -15,6 +18,30 @@ pub struct SinglyLinkedList<T> {
     head: Option<NonNull<Node<T>>>,
     len: usize,
 }
+
+
+/// Version of a [`SinglyLinkedList`] that implements the [`Iterator`] trait, a [`SinglyLinkedList`]'s [`IntoIter`].
+pub struct Iter<T> {
+    list: SinglyLinkedList<T>,
+}
+
+
+impl<T> Iterator for Iter<T> {
+    type Item = T;
+    
+    #[inline]
+    fn next(&mut self) -> Option<Self::Item> {
+        return self.list.pop_front();
+    }
+
+    #[inline]
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        return (self.list.len(), Some(self.list.len()));
+    }
+}
+
+
+impl<T> ExactSizeIterator for Iter<T> {  }
 
 
 impl<T> SinglyLinkedList<T> {
@@ -165,5 +192,77 @@ impl<T> SinglyLinkedList<T> {
         }
 
         self.len += 1
+    }
+
+    /// Removes the [`Node`] at the `front` of the list and returns its `value` field.
+    /// 
+    /// ## Example
+    /// ```rust
+    /// let mut list = sl_list![3, 0, 0, 5];
+    /// let value = list.pop_front();
+    /// 
+    /// assert_eq!(value, Some(3));
+    /// assert_eq!(list, sl_list![0, 0, 5]);
+    /// ```
+    #[inline]
+    pub fn pop_front(&mut self) -> Option<T> {
+        return match self.head {
+            Some(mut ptr) => unsafe {
+                let node = ptr_read(&mut (*ptr.as_mut()));
+                self.head = node.next;
+                self.len -= 1;
+                Some(node.value)
+            },
+
+            None => None,
+        };
+    }
+}
+
+
+impl<T> IntoIterator for SinglyLinkedList<T> {
+    type Item = T;
+    type IntoIter = Iter<T>;
+
+    #[inline]
+    fn into_iter(self) -> Self::IntoIter {
+        return Iter { list: self };
+    }
+}
+
+
+impl<T: PartialEq> PartialEq for SinglyLinkedList<T> {
+    fn eq(&self, other: &Self) -> bool {
+        if self.len() != other.len() { return false; }
+        if self.len() == 0 { return true; }
+
+        let mut s = self.head;
+        let mut o = other.head;
+
+        while let (Some(a), Some(b)) = (s, o) {
+            let a = unsafe { a.as_ref() };
+            let b = unsafe { b.as_ref() };
+
+            if a.value != b.value { return false; }
+
+            s = a.next;
+            o = b.next;
+        }
+        
+        return true;
+    }
+}
+
+
+impl<T: Eq> Eq for SinglyLinkedList<T> {  }
+
+
+impl<T: fmt::Debug> fmt::Debug for SinglyLinkedList<T> {
+    #[inline]
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        return f.debug_struct("SinglyLinkedList")
+            .field("head", &self.head)
+            .field("len", &self.len)
+            .finish();
     }
 }

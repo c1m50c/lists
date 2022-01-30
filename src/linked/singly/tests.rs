@@ -55,3 +55,35 @@ fn sl_list_macro() {
     assert_eq!(list.len(), 5);
     assert_eq!(list.front(), Some(&1));
 }
+
+
+#[test]
+fn pop_front() {
+    let mut list = sl_list![3, 0, 0, 5];
+    let pop = list.pop_front();
+    
+    assert_eq!(pop, Some(3));
+    assert_eq!(list, sl_list![0, 0, 5]);
+}
+
+
+#[test]
+fn iter() {
+    let list = sl_list![0, 1, 2, 3, 4];
+    let mut sum = 0;
+
+    for i in list {
+        sum += i;
+    }
+
+    assert_eq!(sum, 10);
+}
+
+
+#[test]
+fn eq() {
+    let list_a = sl_list![1, 2, 3, 4, 5];
+    let list_b = sl_list![1, 2, 3, 4, 5];
+
+    assert_eq!(list_a, list_b);
+}

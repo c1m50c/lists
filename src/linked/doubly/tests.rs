@@ -87,3 +87,10 @@ fn eq() {
     
     assert_eq!(list_a, list_b);
 }
+
+
+#[test]
+fn iter() {
+    let list = dl_list![5, 5, 5, 5];
+    assert_eq!(list.into_iter().sum::<i32>(), 20);
+}

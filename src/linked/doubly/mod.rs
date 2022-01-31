@@ -19,6 +19,7 @@ mod node;
 use node::Node;
 use std::boxed::Box;
 use core::ptr::{read as ptr_read, NonNull};
+use core::iter::{Iterator, IntoIterator, DoubleEndedIterator, FusedIterator, ExactSizeIterator};
 use core::cmp::{Eq, PartialEq};
 use core::option::Option;
 use core::fmt;
@@ -35,6 +36,40 @@ pub struct DoublyLinkedList<T> {
     /// Length of the [`DoublyLinkedList`], represents how many [`Node`]s are contained within.
     len: usize,
 }
+
+
+/// [`Iter`] for a [`DoublyLinkedList`], it is the list's struct for their `IntoIter` trait.
+pub struct Iter<T> {
+    /// [`DoublyLinkedList`] used in iterating over.
+    list: DoublyLinkedList<T>,
+}
+
+
+impl<T> Iterator for Iter<T> {
+    type Item = T;
+
+    #[inline]
+    fn next(&mut self) -> Option<Self::Item> {
+        return self.list.pop_front();
+    }
+
+    #[inline]
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        return ( self.list.len(), Some(self.list.len()) );
+    }
+}
+
+
+impl<T> DoubleEndedIterator for Iter<T> {
+    #[inline]
+    fn next_back(&mut self) -> Option<Self::Item> {
+        return self.list.pop_back();
+    }
+}
+
+
+impl<T> FusedIterator for Iter<T> {  }
+impl<T> ExactSizeIterator for Iter<T> {  }
 
 
 impl<T> DoublyLinkedList<T> {
@@ -280,21 +315,23 @@ impl<T> DoublyLinkedList<T> {
     /// ```
     #[inline]
     pub fn pop_front(&mut self) -> Option<T> {
-        match self.head {
-            Some(mut ptr) => unsafe {
-                let node = ptr.as_mut();
-                
-                if let Some(mut ptr) = node.next {
-                    ptr.as_mut().prev = None;
-                    self.head = Some(ptr);
-                }
+        if let Some(mut ptr) = self.head {
+            let value;
 
-                self.len -= 1;
-                return Some(ptr_read(&mut (*ptr.as_mut())).value);
-            },
-            
-            None => return None,
+            unsafe {
+                value = ptr_read(&mut (*ptr.as_mut()).value);
+                self.head = (*self.head.unwrap().as_ptr()).next;
+
+                if let Some(ptr) = self.head {
+                    (*ptr.as_ptr()).prev = None;
+                }
+            }
+
+            self.len -= 1;
+            return Some(value);
         }
+
+        return None;
     }
 
     /// Removes the list's `tail` [`Node`], returning its `value`.
@@ -310,21 +347,23 @@ impl<T> DoublyLinkedList<T> {
     /// ```
     #[inline]
     pub fn pop_back(&mut self) -> Option<T> {
-        match self.tail {
-            Some(mut ptr) => unsafe {
-                let node = ptr.as_mut();
-                
-                if let Some(mut ptr) = node.prev {
-                    ptr.as_mut().next = None;
-                    self.tail= Some(ptr);
-                }
+        if let Some(mut ptr) = self.tail {
+            let value;
 
-                self.len -= 1;
-                return Some(ptr_read(&mut (*ptr.as_mut())).value);
-            },
-            
-            None => return None,
+            unsafe {
+                value = ptr_read(&mut (*ptr.as_mut()).value);
+                self.tail = (*self.tail.unwrap().as_ptr()).prev;
+
+                if let Some(ptr) = self.tail {
+                    (*ptr.as_ptr()).next = None;
+                }
+            }
+
+            self.len -= 1;
+            return Some(value);
         }
+
+        return None;
     }
 
     /// Removes the list's `head` [`Node`].
@@ -384,11 +423,23 @@ impl<T: Eq> Eq for DoublyLinkedList<T> {  }
 
 
 impl<T: fmt::Debug> fmt::Debug for DoublyLinkedList<T> {
+    #[inline]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         return f.debug_struct("DoublyLinkedList")
             .field("head", &self.head)
             .field("tail", &self.tail)
             .field("len", &self.len)
             .finish();
+    }
+}
+
+
+impl<T> IntoIterator for DoublyLinkedList<T> {
+    type Item = T;
+    type IntoIter = Iter<T>;
+
+    #[inline]
+    fn into_iter(self) -> Self::IntoIter {
+        return Iter { list: self };
     }
 }

@@ -36,6 +36,7 @@ pub struct SinglyLinkedList<T> {
 
 /// Version of a [`SinglyLinkedList`] that implements the [`Iterator`] trait, a [`SinglyLinkedList`]'s [`IntoIter`].
 pub struct Iter<T> {
+    /// [`SinglyLinkedList`] used for iterating over.
     list: SinglyLinkedList<T>,
 }
 

@@ -1,11 +1,11 @@
 [package]
 name = "lists"
-version = "1.0.0"
+version = "1.0.1"
 edition = "2018"
 readme = "README.MD"
 repository = "https://github.com/c1m50c/lists"
 license = "MIT"
-description = "Library containing various implmentations of list-like data-structures such as Vectors, LinkedLists, and more."
+description = "Library containing various implementations of list-like data-structures such as Vectors, LinkedLists, and more."
 keywords = [ "data-structures", "linked-list", "vector", "sequence", "list" ]
 categories = [ "data-structures" ]
 

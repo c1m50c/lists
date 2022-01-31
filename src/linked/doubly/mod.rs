@@ -1,3 +1,4 @@
+pub(crate) mod macros;
 mod node;
 
 #[cfg(test)]
@@ -37,11 +38,7 @@ impl<T> DoublyLinkedList<T> {
     /// 
     /// ## Example
     /// ```rust
-    /// let mut list = DoublyLinkedList::new();
-    /// 
-    /// list.push_front(3);
-    /// list.push_front(2);
-    /// list.push_front(1);
+    /// let list = dl_list![1, 2, 3];
     /// 
     /// assert_eq!(list.len(), 3);
     /// ```
@@ -130,6 +127,37 @@ impl<T> DoublyLinkedList<T> {
             Some(mut ptr) => unsafe { Some(&mut ptr.as_mut().value) },
             None => None,
         }
+    }
+
+    /// Pushes or prepends a new [`Node`] to the `front` of the [`DoublyLinkedList`].
+    /// Time complexity is `O(1)`.
+    /// 
+    /// ## Example
+    /// ```rust
+    /// let mut list = DoublyLinkedList::new();
+    /// 
+    /// list.push_front(1);
+    /// list.push_front(2);
+    /// list.push_front(3);
+    /// 
+    /// assert_eq!(list, dl_list![3, 2, 1]);
+    /// ```
+    #[inline]
+    pub fn push_front(&mut self, value: T) {
+        let mut new_node = Node::new(value).into_box();
+        new_node.next = self.head;
+        
+        let node_ptr = unsafe {
+            Some(NonNull::new_unchecked(Box::into_raw(new_node)))
+        };
+
+        match self.head {
+            Some(mut ptr) => unsafe { ptr.as_mut().prev = node_ptr; },
+            None => { self.tail = node_ptr; },
+        }
+
+        self.len += 1;
+        self.head = node_ptr;
     }
 
     /// Pushes or appends a new [`Node`] to the `back` of the [`DoublyLinkedList`].

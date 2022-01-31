@@ -1,11 +1,10 @@
-//! # Lists
 //! Library containing various implementations of list-like data-structures such as `Vector`s, `LinkedList`s, and more.
 //! All data-structures follow a sequence-like structure and can be represented like an `Array`.
 //! 
-//! ## Linked Lists
+//! ## Lists
 //! ```rust
-//! pub struct SinglyLinkedList { .. } // One-directional `LinkedList`.
-//! pub struct DoublyLinkedList { .. } // Two-directional `LinkedList`.
+//! pub struct SinglyLinkedList<T> { .. } // One-directional `LinkedList`.
+//! pub struct DoublyLinkedList<T> { .. } // Two-directional `LinkedList`.
 //! ```
 
 
@@ -13,8 +12,8 @@
 pub mod linked;
 
 
-pub use linked::SinglyLinkedList;
-pub use linked::DoublyLinkedList;
+pub use linked::singly::SinglyLinkedList;
+pub use linked::doubly::DoublyLinkedList;
 
 
 /// Shorthand syntax for creating a [`SinglyLinkedList`].

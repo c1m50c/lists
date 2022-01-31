@@ -1,3 +1,15 @@
+//! Module containing a [`SinglyLinkedList`] data-structure.
+//! A [`SinglyLinkedList`] is a one-directional data-structure that contains [`Node`]s that point to the next [`Node`] within the sequence.
+//! [`SinglyLinkedList`]s are normally the slowest `LinkedList` data-structure, but are the most memory efficent.
+//! They contain [`Node`]s that have a `next` and `value` field, `next` points to the next [`Node`] in the sequence,
+//! `value` holds the [`Node`]'s value, or data held within.
+//! 
+//! ## Lists
+//! ```rust
+//! pub struct SinglyLinkedList<T> { .. } // One-directional `LinkedList`.
+//! ```
+
+
 #[cfg(test)]
 mod tests;
 

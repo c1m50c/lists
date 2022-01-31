@@ -1,11 +1,25 @@
+//! Module containing a [`DoublyLinkedList`] data-structure.
+//! A [`DoublyLinkedList`] is a two-directional data-structure that contains [`Node`]s that point to the next & previous [`Node`]s within the sequence.
+//! They contain [`Node`]s that have a `next`, `prev` and `value` field;
+//! `next` points to the next [`Node`] in the sequence,
+//! `prev` points to the previous [`Node`] in the sequence,
+//! `value` holds the [`Node`]'s value, or data held within.
+//! 
+//! ## Lists
+//! ```rust
+//! pub struct DoublyLinkedList<T> { .. } // Two-directional `LinkedList`.
+//! ```
+
+
 #[cfg(test)]
 mod tests;
 
 mod node;
 
+use node::Node;
+use std::boxed::Box;
 use core::option::Option;
 use core::ptr::NonNull;
-use node::Node;
 
 
 /// A two-directional linked list, known more commonly as a [`DoublyLinkedList`].

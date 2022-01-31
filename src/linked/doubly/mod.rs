@@ -20,6 +20,7 @@ use node::Node;
 use std::boxed::Box;
 use core::ptr::{read as ptr_read, NonNull};
 use core::iter::{Iterator, IntoIterator, DoubleEndedIterator, FusedIterator, ExactSizeIterator};
+use core::ops::{Index, IndexMut};
 use core::cmp::{Eq, PartialEq};
 use core::option::Option;
 use core::fmt;
@@ -430,6 +431,52 @@ impl<T: fmt::Debug> fmt::Debug for DoublyLinkedList<T> {
             .field("tail", &self.tail)
             .field("len", &self.len)
             .finish();
+    }
+}
+
+
+impl<T: fmt::Display> fmt::Display for DoublyLinkedList<T> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        if self.len == 0 {
+            // SAFETY: Provides safety for future unwrapping within the return.
+            return write!(f, "[]");
+        }
+
+        let mut result = String::from("[");
+
+        for e in self.into_iter() {
+            result.push_str(format!("{}", e).as_str());
+        }
+
+        return write!(f, "{}", result.strip_suffix(", ").unwrap().to_string() + "]");
+    }
+}
+
+
+impl<T> Copy for DoublyLinkedList<T> {  }
+
+
+impl<T> Clone for DoublyLinkedList<T> {
+    fn clone(&self) -> Self {
+        return *self;
+    }
+}
+
+
+impl<T> Index<usize> for DoublyLinkedList<T> {
+    type Output = T;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        return self.get(index)
+            .expect(format!("Index '{}' out of bounds", index).as_str());
+    }
+}
+
+
+impl<T> IndexMut<usize> for DoublyLinkedList<T> {
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        return self.get_mut(index)
+            .expect(format!("Index '{}' out of bounds", index).as_str());
     }
 }
 

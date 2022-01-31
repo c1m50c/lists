@@ -94,3 +94,17 @@ fn iter() {
     let list = dl_list![5, 5, 5, 5];
     assert_eq!(list.into_iter().sum::<i32>(), 20);
 }
+
+
+#[test]
+fn index() {
+    let mut list = dl_list![1, 2, 3];
+
+    list[0] = 4;
+    list[1] = 5;
+    list[2] = 6;
+
+    assert_eq!(list[0], 4);
+    assert_eq!(list[1], 5);
+    assert_eq!(list[2], 6);
+}

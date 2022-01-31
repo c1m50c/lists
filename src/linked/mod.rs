@@ -11,8 +11,8 @@
 //! ```
 
 
-pub(crate) mod singly;
-pub(crate) mod doubly;
+pub mod singly;
+pub mod doubly;
 
 
 pub use singly::SinglyLinkedList;

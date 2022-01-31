@@ -1,9 +1,7 @@
-pub(crate) mod macros;
-mod node;
-
 #[cfg(test)]
 mod tests;
 
+mod node;
 
 use core::option::Option;
 use core::ptr::NonNull;

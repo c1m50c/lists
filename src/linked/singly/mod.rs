@@ -1,8 +1,7 @@
-pub(crate) mod macros;
-mod node;
-
 #[cfg(test)]
 mod tests;
+
+mod node;
 
 use node::Node;
 use std::boxed::Box;

@@ -1,4 +1,5 @@
-use super::{SinglyLinkedList, macros::sl_list};
+use super::super::super::sl_list;
+use super::SinglyLinkedList;
 
 
 #[test]

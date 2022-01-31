@@ -1,4 +1,5 @@
-use super::{DoublyLinkedList, macros::dl_list};
+use super::super::super::dl_list;
+use super::DoublyLinkedList;
 
 
 #[test]

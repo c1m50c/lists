@@ -286,6 +286,72 @@ impl<T> SinglyLinkedList<T> {
     pub fn remove_front(&mut self) {
         let _ = self.pop_front();
     }
+
+    /// Returns a reference to the [`Node`] at the given `index` within the list.
+    /// Time complexity is `O(n)`.
+    /// 
+    /// ## Example
+    /// ```rust
+    /// let list = sl_list![1, 2, 3];
+    /// 
+    /// assert_eq!(list.get(0), Some(&1));
+    /// assert_eq!(list.get(1), Some(&2));
+    /// assert_eq!(list.get(2), Some(&3));
+    /// ```
+    #[inline]
+    pub fn get(&self, index: usize) -> Option<&T> {
+        if index == 0 { return self.front(); }
+        if index >= self.len { return None; }
+
+        let mut current = self.head;
+        let mut i = 0;
+
+        while let Some(ptr) = current {
+            let node = unsafe { ptr.as_ref() };
+
+            if i == index {
+                return Some(&node.value);
+            }
+
+            current = node.next;
+            i += 1;
+        }
+
+        return None;
+    }
+
+    /// Returns a mutable reference to the [`Node`] at the given `index` within the list.
+    /// Time complexity is `O(n)`.
+    /// 
+    /// ## Example
+    /// ```rust
+    /// let mut list = sl_list![1, 2, 3];
+    /// 
+    /// assert_eq!(list.get_mut(0), Some(&mut 1));
+    /// assert_eq!(list.get_mut(1), Some(&mut 2));
+    /// assert_eq!(list.get_mut(2), Some(&mut 3));
+    /// ```
+    #[inline]
+    pub fn get_mut(&mut self, index: usize) -> Option<&mut T> {
+        if index == 0 { return self.front_mut(); }
+        if index >= self.len { return None; }
+
+        let mut current = self.head;
+        let mut i = 0;
+
+        while let Some(mut ptr) = current {
+            let node = unsafe { ptr.as_mut() };
+
+            if i == index {
+                return Some(&mut node.value);
+            }
+
+            current = node.next;
+            i += 1;
+        }
+
+        return None;
+    }
 }
 
 
@@ -301,6 +367,7 @@ impl<T> IntoIterator for SinglyLinkedList<T> {
 
 
 impl<T: PartialEq> PartialEq for SinglyLinkedList<T> {
+    #[inline]
     fn eq(&self, other: &Self) -> bool {
         if self.len() != other.len() { return false; }
         if self.len() == 0 { return true; }

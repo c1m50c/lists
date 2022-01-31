@@ -101,3 +101,19 @@ fn remove_front() {
 
     assert_eq!(list, sl_list![2, 3]);
 }
+
+
+#[test]
+fn get() {
+    let mut list = sl_list!["Singly", "Linked", "List"];
+
+    assert_eq!(list.get_mut(0), Some(&mut "Singly"));
+    assert_eq!(list.get_mut(1), Some(&mut "Linked"));
+    assert_eq!(list.get_mut(2), Some(&mut "List"));
+    assert_eq!(list.get_mut(3), None);
+
+    assert_eq!(list.get(0), Some(&"Singly"));
+    assert_eq!(list.get(1), Some(&"Linked"));
+    assert_eq!(list.get(2), Some(&"List"));
+    assert_eq!(list.get(3), None);
+}

@@ -18,8 +18,10 @@ mod node;
 
 use node::Node;
 use std::boxed::Box;
+use core::ptr::{read as ptr_read, NonNull};
+use core::cmp::{Eq, PartialEq};
 use core::option::Option;
-use core::ptr::NonNull;
+use core::fmt;
 
 
 /// A two-directional linked list, known more commonly as a [`DoublyLinkedList`].
@@ -263,5 +265,130 @@ impl<T> DoublyLinkedList<T> {
         }
 
         return None;
+    }
+
+    /// Removes the list's `head` [`Node`], returning its `value`.
+    /// Time complexity is `O(1)`.
+    /// 
+    /// ## Example
+    /// ```rust
+    /// let mut list = dl_list![1, 2, 3];
+    /// let pop = list.pop_front();
+    /// 
+    /// assert_eq!(pop, Some(1));
+    /// assert_eq!(list, dl_list![2, 3]);
+    /// ```
+    #[inline]
+    pub fn pop_front(&mut self) -> Option<T> {
+        match self.head {
+            Some(mut ptr) => unsafe {
+                let node = ptr.as_mut();
+                
+                if let Some(mut ptr) = node.next {
+                    ptr.as_mut().prev = None;
+                    self.head = Some(ptr);
+                }
+
+                self.len -= 1;
+                return Some(ptr_read(&mut (*ptr.as_mut())).value);
+            },
+            
+            None => return None,
+        }
+    }
+
+    /// Removes the list's `tail` [`Node`], returning its `value`.
+    /// Time complexity is `O(1)`.
+    /// 
+    /// ## Example
+    /// ```rust
+    /// let mut list = dl_list![1, 2, 3];
+    /// let pop = list.pop_back();
+    /// 
+    /// assert_eq!(pop, Some(3));
+    /// assert_eq!(list, dl_list![1, 2]);
+    /// ```
+    #[inline]
+    pub fn pop_back(&mut self) -> Option<T> {
+        match self.tail {
+            Some(mut ptr) => unsafe {
+                let node = ptr.as_mut();
+                
+                if let Some(mut ptr) = node.prev {
+                    ptr.as_mut().next = None;
+                    self.tail= Some(ptr);
+                }
+
+                self.len -= 1;
+                return Some(ptr_read(&mut (*ptr.as_mut())).value);
+            },
+            
+            None => return None,
+        }
+    }
+
+    /// Removes the list's `head` [`Node`].
+    /// Time complexity is `O(1)`.
+    /// 
+    /// ## Example
+    /// ```rust
+    /// let mut list = dl_list![1, 2, 3];
+    /// list.remove_front();
+    /// 
+    /// assert_eq!(list, dl_list![2, 3]);
+    /// ```
+    #[inline]
+    pub fn remove_front(&mut self) {
+        let _ = self.pop_front();
+    }
+
+    /// Removes the list's `tail` [`Node`].
+    /// Time complexity is `O(1)`.
+    /// 
+    /// ## Example
+    /// ```rust
+    /// let mut list = dl_list![1, 2, 3];
+    /// list.remove_back();
+    /// 
+    /// assert_eq!(list, dl_list![1, 2]);
+    /// ```
+    #[inline]
+    pub fn remove_back(&mut self) {
+        let _ = self.pop_back();
+    }
+}
+
+
+impl<T: PartialEq> PartialEq for DoublyLinkedList<T> {
+    fn eq(&self, other: &Self) -> bool {
+        if self.len != other.len { return false; }
+        if self.len == 0 { return true; }
+
+        let mut s = self.head;
+        let mut o = other.head;
+
+        while let (Some(a), Some(b)) = (s, o) {
+            let a = unsafe { a.as_ref() };
+            let b = unsafe { b.as_ref() };
+
+            if a.value != b.value { return false; }
+            s = a.next; o = b.next;
+        }
+
+        return true;
+    }
+}
+
+
+impl<T: Eq> Eq for DoublyLinkedList<T> {  }
+
+
+impl<T: fmt::Debug> fmt::Debug for DoublyLinkedList<T> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        return f.debug_struct("DoublyLinkedList")
+            .field("head", &self.head)
+            .field("tail", &self.tail)
+            .field("len", &self.len)
+            .finish();
     }
 }

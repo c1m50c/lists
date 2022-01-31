@@ -56,3 +56,34 @@ fn get() {
     assert_eq!(list.get(1), Some(&2));
     assert_eq!(list.get(2), Some(&3));
 }
+
+
+#[test]
+fn pop() {
+    let mut list = dl_list![1, 2, 3];
+    let front = list.pop_front();
+    let back = list.pop_back();
+
+    assert_eq!(front, Some(1));
+    assert_eq!(back, Some(3));
+    assert_eq!(list, dl_list![2]);
+}
+
+
+#[test]
+fn remove() {
+    let mut list = dl_list![1, 2, 3];
+    list.remove_front();
+    list.remove_back();
+
+    assert_eq!(list, dl_list![2]);
+}
+
+
+#[test]
+fn eq() {
+    let list_a = dl_list![4, 0, 0, 5];
+    let list_b = dl_list![4, 0, 0, 5];
+    
+    assert_eq!(list_a, list_b);
+}

@@ -14,12 +14,11 @@
 #[cfg(test)]
 mod tests;
 
-mod node;
+pub mod node;
 
 use node::Node;
-use std::boxed::Box;
 use core::ptr::{read as ptr_read, NonNull};
-use core::iter::{Iterator, IntoIterator, DoubleEndedIterator, FusedIterator, ExactSizeIterator};
+use core::iter::{Iterator, IntoIterator, DoubleEndedIterator, FusedIterator, ExactSizeIterator, FromIterator};
 use core::ops::{Index, IndexMut};
 use core::cmp::{Eq, PartialEq};
 use core::option::Option;
@@ -95,6 +94,22 @@ impl<T> DoublyLinkedList<T> {
     #[inline]
     pub const fn len(&self) -> usize {
         return self.len;
+    }
+
+    /// Returns a `bool` that determines if the list is empty.
+    /// 
+    /// ## Example
+    /// ```rust
+    /// let mut list = DoublyLinkedList::<i32>::new();
+    /// 
+    /// assert_eq!(list.is_empty(), true);
+    /// 
+    /// list.push_back(1);
+    /// assert_eq!(list.is_empty(), false);
+    /// ```
+    #[inline]
+    pub const fn is_empty(&self) -> bool {
+        return self.head.is_some();
     }
 
     /// Clears the [`DoublyLinkedList`] settings its fields back to their default values.
@@ -197,9 +212,7 @@ impl<T> DoublyLinkedList<T> {
         let mut new_node = Node::new(value).into_box();
         new_node.next = self.head;
         
-        let node_ptr = unsafe {
-            Some(NonNull::new_unchecked(Box::into_raw(new_node)))
-        };
+        let node_ptr = Some(new_node.into_non_null());
 
         match self.head {
             Some(mut ptr) => unsafe { ptr.as_mut().prev = node_ptr; },
@@ -228,9 +241,7 @@ impl<T> DoublyLinkedList<T> {
         let mut new_node = Node::new(value).into_box();
         new_node.prev = self.tail;
         
-        let node_ptr = unsafe {
-            Some(NonNull::new_unchecked(Box::into_raw(new_node)))
-        };
+        let node_ptr = Some(new_node.into_non_null());
 
         match self.tail {
             Some(mut ptr) => unsafe { ptr.as_mut().next = node_ptr; },
@@ -457,6 +468,7 @@ impl<T> Copy for DoublyLinkedList<T> {  }
 
 
 impl<T> Clone for DoublyLinkedList<T> {
+    #[inline]
     fn clone(&self) -> Self {
         return *self;
     }
@@ -466,6 +478,7 @@ impl<T> Clone for DoublyLinkedList<T> {
 impl<T> Index<usize> for DoublyLinkedList<T> {
     type Output = T;
 
+    #[inline]
     fn index(&self, index: usize) -> &Self::Output {
         return self.get(index)
             .expect(format!("Index '{}' out of bounds", index).as_str());
@@ -474,6 +487,7 @@ impl<T> Index<usize> for DoublyLinkedList<T> {
 
 
 impl<T> IndexMut<usize> for DoublyLinkedList<T> {
+    #[inline]
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
         return self.get_mut(index)
             .expect(format!("Index '{}' out of bounds", index).as_str());
@@ -488,5 +502,19 @@ impl<T> IntoIterator for DoublyLinkedList<T> {
     #[inline]
     fn into_iter(self) -> Self::IntoIter {
         return Iter { list: self };
+    }
+}
+
+
+impl<T> FromIterator<T> for DoublyLinkedList<T> {
+    #[inline]
+    fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
+        let mut result = DoublyLinkedList::new();
+
+        for x in iter {
+            result.push_back(x);
+        }
+
+        return result;
     }
 }

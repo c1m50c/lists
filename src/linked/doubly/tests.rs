@@ -1,3 +1,5 @@
+use std::iter::FromIterator;
+
 use super::super::super::dl_list;
 use super::DoublyLinkedList;
 
@@ -107,4 +109,17 @@ fn index() {
     assert_eq!(list[0], 4);
     assert_eq!(list[1], 5);
     assert_eq!(list[2], 6);
+}
+
+
+#[test]
+fn from_iter() {
+    let arr = [1, 2, 3];
+    let vec = vec![1, 2, 3];
+
+    let list_a = DoublyLinkedList::from_iter(arr.iter());
+    let list_b = DoublyLinkedList::from_iter(vec.iter());
+
+    assert_eq!(list_a, dl_list![&1, &2, &3]);
+    assert_eq!(list_b, dl_list![&1, &2, &3]);
 }

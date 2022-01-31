@@ -1,3 +1,6 @@
+//! Contains the [`DoublyLinkedList`]'s [`Node`], the [`Node`] contains the `value`s & `ptr`s of all elements within the list.
+
+
 use std::boxed::Box;
 use core::ptr::NonNull;
 use core::option::Option;
@@ -6,8 +9,13 @@ use core::fmt;
 
 /// [`Node`] for representing values in a [`DoublyLinkedList`].
 pub struct Node<T> {
+    /// Next [`Node`] within the [`DoublyLinkedList`].
     pub next: Option<NonNull<Node<T>>>,
+
+    /// Previous [`Node`] within the [`DoublyLinkedList`].
     pub prev: Option<NonNull<Node<T>>>,
+
+    /// Value of the [`Node`].
     pub value: T,
 }
 
@@ -39,6 +47,23 @@ impl<T> Node<T> {
     /// ```
     pub fn into_box(self) -> Box<Self> {
         return Box::new(self);
+    }
+
+    /// Converts the [`Node`] into a [`Box`], then converts the [`Box`] into a [`NonNull`] of the [`Node`].
+    /// 
+    /// ## Example
+    /// ```rust
+    /// let ptr = Node::new(5).into_non_null();
+    /// let value = unsafe { &ptr.as_ref().value };
+    /// 
+    /// assert_eq!(value, &5);
+    /// ```
+    /// 
+    /// ## Safety
+    /// - Converts the [`Node`] into a [`Box`] before [`NonNull`] conversion, `ptr` should always be valid.
+    #[inline]
+    pub fn into_non_null(self) -> NonNull<Self> {
+        return unsafe { NonNull::new_unchecked(Box::into_raw(self.into_box())) };
     }
 }
 

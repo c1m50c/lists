@@ -13,10 +13,9 @@
 #[cfg(test)]
 mod tests;
 
-mod node;
+pub mod node;
 
 use node::Node;
-use std::boxed::Box;
 use core::ptr::{NonNull, read as ptr_read};
 use core::iter::{Iterator, IntoIterator, ExactSizeIterator};
 use core::cmp::{Eq, PartialEq};
@@ -208,9 +207,7 @@ impl<T> SinglyLinkedList<T> {
         let mut new_node = Node::new(value).into_box();
         new_node.next = self.head;
 
-        let ptr = unsafe {
-            NonNull::new_unchecked(Box::into_raw(new_node))
-        };
+        let ptr = new_node.into_non_null();
 
         self.len += 1;
         self.head = Some(ptr);
@@ -231,11 +228,7 @@ impl<T> SinglyLinkedList<T> {
     /// ```
     #[inline]
     pub fn push_back(&mut self, value: T) {
-        let ptr = unsafe {
-            NonNull::new_unchecked(
-                Box::into_raw(Node::new(value).into_box())
-            )
-        };
+        let ptr = Node::new(value).into_non_null();
 
         match self.head {
             Some(x) => unsafe {

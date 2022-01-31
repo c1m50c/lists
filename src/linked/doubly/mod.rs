@@ -202,4 +202,66 @@ impl<T> DoublyLinkedList<T> {
         self.len += 1;
         self.tail = node_ptr;
     }
+
+    /// Returns a reference to the [`Node`] at the given `index`.
+    /// Time complexity is `O(n)`.
+    /// 
+    /// ## Example
+    /// ```rust
+    /// let list = dl_list![1, 2, 3];
+    /// 
+    /// assert_eq!(list.get(1), Some(&2));
+    /// ```
+    #[inline]
+    pub fn get(&self, index: usize) -> Option<&T> {
+        if index == 0 { return self.front(); }
+        if index == self.len - 1 { return self.back(); }
+
+        let mut current = self.head;
+        let mut i = 0;
+
+        while let Some(ptr) = current {
+            let node = unsafe { ptr.as_ref() };
+
+            if i == index {
+                return Some(&node.value);
+            }
+
+            current = node.next;
+            i += 1;
+        }
+
+        return None;
+    }
+
+    /// Returns a mutable reference to the [`Node`] at the given `index`.
+    /// Time complexity is `O(n)`.
+    /// 
+    /// ## Example
+    /// ```rust
+    /// let mut list = dl_list![1, 2, 3];
+    /// 
+    /// assert_eq!(list.get_mut(1), Some(&mut 2));
+    /// ```
+    #[inline]
+    pub fn get_mut(&mut self, index: usize) -> Option<&mut T> {
+        if index == 0 { return self.front_mut(); }
+        if index == self.len - 1 { return self.back_mut(); }
+
+        let mut current = self.head;
+        let mut i = 0;
+
+        while let Some(mut ptr) = current {
+            let node = unsafe { ptr.as_mut() };
+
+            if i == index {
+                return Some(&mut node.value);
+            }
+
+            current = node.next;
+            i += 1;
+        }
+
+        return None;
+    }
 }

@@ -2,6 +2,7 @@ use std::iter::FromIterator;
 
 use super::super::super::dl_list;
 use super::DoublyLinkedList;
+use super::node::Node;
 
 
 #[test]
@@ -122,4 +123,14 @@ fn from_iter() {
 
     assert_eq!(list_a, dl_list![&1, &2, &3]);
     assert_eq!(list_b, dl_list![&1, &2, &3]);
+}
+
+
+#[test]
+fn node_into() {
+    let boxed = Node::new(5).into_box();
+    let ptr = Node::new(5).into_non_null();
+    
+    assert_eq!(boxed.value, 5);
+    assert_eq!(unsafe { ptr.as_ref().value }, 5);
 }

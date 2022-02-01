@@ -1,5 +1,6 @@
 use super::super::super::sl_list;
 use super::SinglyLinkedList;
+use super::node::Node;
 
 
 #[test]
@@ -117,4 +118,14 @@ fn get() {
     assert_eq!(list.get(1), Some(&"Linked"));
     assert_eq!(list.get(2), Some(&"List"));
     assert_eq!(list.get(3), None);
+}
+
+
+#[test]
+fn node_into() {
+    let boxed = Node::new(5).into_box();
+    let ptr = Node::new(5).into_non_null();
+    
+    assert_eq!(boxed.value, 5);
+    assert_eq!(unsafe { ptr.as_ref().value }, 5);
 }

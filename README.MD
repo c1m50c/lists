@@ -7,7 +7,7 @@
 ![lines of code](https://img.shields.io/tokei/lines/github/c1m50c/lists?style=for-the-badge)
 ![github stars](https://img.shields.io/github/stars/c1m50c/lists?style=for-the-badge)
 
-Library containing various implementations of list-like data-structures such as `Vectors`, `LinkedLists`, and more.
+Library containing implementations of various sequential data-structures.
 
 
 ## **Testing**

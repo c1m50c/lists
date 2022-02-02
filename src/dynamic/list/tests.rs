@@ -46,3 +46,32 @@ fn index() {
     assert_eq!(list[1], 5);
     assert_eq!(list[2], 6);
 }
+
+
+#[test]
+fn truncate() {
+    let mut list = list![3, 2, 1];
+    list.truncate(1);
+
+    assert_eq!(list, list![3]);
+}
+
+
+#[test]
+fn clear() {
+    let mut list = list!["List", "is", "not", "clear"];
+    assert_eq!(list.is_empty(), false);
+
+    list.clear();
+    assert_eq!(list.is_empty(), true);
+}
+
+
+#[test]
+fn eq_ne() {
+    let list = list![1, 2, 3, 4, 5];
+
+    assert_eq!(list, list![1, 2, 3, 4, 5]);
+    assert_ne!(list, list![0, 1, 2, 3, 4]);
+    assert_ne!(list, list![1, 2, 3, 4, 5, 6]);
+}

@@ -12,12 +12,15 @@
 mod tests;
 
 
+use core::ptr::{NonNull, slice_from_raw_parts_mut};
 use core::slice::from_raw_parts_mut;
 use core::mem::{size_of, align_of};
 use core::ops::{Index, IndexMut};
+use core::cmp::{Eq, PartialEq};
 use core::ptr::drop_in_place;
 use core::option::Option;
-use core::ptr::NonNull;
+use core::fmt;
+
 use std::alloc;
 
 
@@ -62,6 +65,36 @@ impl<T> List<T> {
     #[inline]
     pub const fn len(&self) -> usize {
         return self.len;
+    }
+
+    /// Returns a boolean representing if the [`List`] is empty.
+    /// 
+    /// ## Example
+    /// ```rust
+    /// let mut list = list!["List", "is", "not", "empty"];
+    /// assert_eq!(list.is_empty(), false);
+    /// 
+    /// list.clear();
+    /// assert_eq!(list.is_empty(), true);
+    /// ```
+    #[inline]
+    pub const fn is_empty(&self) -> bool {
+        return self.len == 0;
+    }
+
+    /// Sets the [`List`] to its empty state.
+    /// 
+    /// ## Example
+    /// ```rust
+    /// let mut list = list!["List", "is", "not", "empty"];
+    /// assert_eq!(list.is_empty(), false);
+    /// 
+    /// list.clear();
+    /// assert_eq!(list.is_empty(), true);
+    /// ```
+    #[inline]
+    pub fn clear(&mut self) {
+        self.truncate(0);
     }
 
     /// Appends a new `value` into the [`List`].
@@ -148,6 +181,37 @@ impl<T> List<T> {
         }
     }
 
+    /// Shortens the [`List`], keeping the first `len` items and dropping the rest.
+    /// If `len` is greater than the [`List`]'s current length, this has no effect.
+    /// 
+    /// ## Example
+    /// ```rust
+    /// let mut list = list![3, 2, 1];
+    /// list.truncate(1);
+    /// 
+    /// assert_eq!(list, list![3]);
+    /// ```
+    #[inline]
+    pub fn truncate(&mut self, len: usize) {
+        if len > self.len { return; }
+
+        /*
+            SAFETY:
+            - The slice passed to `drop_in_place()` is valid, the `len > self.len` case avoids creating an invalid slice.
+            - The `len` of the list is shrunk before calling `drop_in_place()`, such that no value will be dropped twice,
+                in case `drop_in_place()` were to panic once.
+        */
+        unsafe {
+            let slice = slice_from_raw_parts_mut(
+                self.ptr.as_ptr().add(len),
+                self.len - len
+            );
+
+            self.len = len;
+            drop_in_place(slice);
+        }
+    }
+
     /// Returns a reference to the item at the given `index`.
     /// 
     /// ## Example
@@ -222,3 +286,34 @@ impl<T> IndexMut<usize> for List<T> {
             .expect(format!("Index '{}' out of bounds.", index).as_str());
     }
 }
+
+
+impl<T: fmt::Debug> fmt::Debug for List<T> {
+    #[inline]
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        return f.debug_struct("List")
+            .field("ptr", &self.ptr)
+            .field("capacity", &self.capacity)
+            .field("len", &self.len)
+            .finish();
+    }
+}
+
+
+impl<T: PartialEq> PartialEq for List<T> {
+    #[inline]
+    fn eq(&self, other: &Self) -> bool {
+        if self.len != other.len { return false; }
+
+        for i in 0 .. self.len {
+            if self[i] != other[i] {
+                return false
+            }
+        }
+
+        return true;
+    }
+}
+
+
+impl<T: Eq> Eq for List<T> {  }

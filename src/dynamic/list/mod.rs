@@ -44,6 +44,7 @@ pub struct List<T> {
 }
 
 
+#[allow(dead_code)]
 impl<T> List<T> {
     /// Creates a new, and empty [`List`].
     #[inline]
@@ -246,6 +247,54 @@ impl<T> List<T> {
             Some(&mut *self.ptr.as_ptr().add(index))
         };
     }
+
+    /// Returns a reference to the item at the `front` of the list.
+    /// 
+    /// ## Example
+    /// ```rust
+    /// let list = list![2, 4, 6];
+    /// assert_eq!(list.front(), Some(&2));
+    /// ```
+    #[inline]
+    fn front(&self) -> Option<&T> {
+        return self.get(0);
+    }
+
+    /// Returns a reference to the item at the `back` of the list.
+    /// 
+    /// ## Example
+    /// ```rust
+    /// let list = list![2, 4, 6];
+    /// assert_eq!(list.back(), Some(&6));
+    /// ```
+    #[inline]
+    fn back(&self) -> Option<&T> {
+        return self.get(self.len - 1);
+    }
+
+    /// Returns a mutable reference to the item at the `front` of the list.
+    /// 
+    /// ## Example
+    /// ```rust
+    /// let mut list = list![2, 4, 6];
+    /// assert_eq!(list.front_mut(), Some(&mut 2));
+    /// ```
+    #[inline]
+    fn front_mut(&mut self) -> Option<&mut T> {
+        return self.get_mut(0);
+    }
+
+    /// Returns a mutable reference to the item at the `back` of the list.
+    /// 
+    /// ## Example
+    /// ```rust
+    /// let mut list = list![2, 4, 6];
+    /// assert_eq!(list.back_mut(), Some(&mut 6));
+    /// ```
+    #[inline]
+    fn back_mut(&mut self) -> Option<&mut T> {
+        return self.get_mut(self.len - 1);
+    }
 }
 
 
@@ -296,6 +345,24 @@ impl<T: fmt::Debug> fmt::Debug for List<T> {
             .field("capacity", &self.capacity)
             .field("len", &self.len)
             .finish();
+    }
+}
+
+
+impl<T: fmt::Display> fmt::Display for List<T> {
+    #[inline]
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        if self.len == 0 { return write!(f, "[]"); }
+
+        let mut result = String::from("[");
+
+        for i in 0 .. self.len {
+            result.push_str(
+                format!("{}, ", self[i]).as_str()
+            );
+        }
+
+        return write!(f, "{}", result.strip_suffix(", ").unwrap().to_string() + "]");
     }
 }
 

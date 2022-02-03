@@ -69,13 +69,23 @@ impl<T> Node<T> {
 
 
 impl<T: PartialEq> PartialEq for Node<T> {
-    fn eq(&self, other: &Self) -> bool {
-        return self.value == other.value;
+    #[inline]
+    fn eq(&self, rhs: &Self) -> bool {
+        return self.value == rhs.value;
+    }
+}
+
+
+impl<T: PartialEq> PartialEq<T> for Node<T> {
+    #[inline]
+    fn eq(&self, rhs: &T) -> bool {
+        return self.value == *rhs;
     }
 }
 
 
 impl<T: fmt::Debug> fmt::Debug for Node<T> {
+    #[inline]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         return f.debug_struct("Node")
             .field("next", &self.next)

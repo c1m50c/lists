@@ -75,3 +75,23 @@ fn eq_ne() {
     assert_ne!(list, list![0, 1, 2, 3, 4]);
     assert_ne!(list, list![1, 2, 3, 4, 5, 6]);
 }
+
+
+#[test]
+fn display() {
+    let list = list![5, 4, 3, 2, 1];
+
+    assert_eq!(format!("{}", list).as_str(), "[5, 4, 3, 2, 1]");
+}
+
+
+#[test]
+fn front_back() {
+    let mut list = list!["front", "_", "back"];
+
+    *list.front_mut().unwrap() = "FRONT";
+    *list.back_mut().unwrap() = "BACK";
+
+    assert_eq!(list.front(), Some(&"FRONT"));
+    assert_eq!(list.back(), Some(&"BACK"));
+}

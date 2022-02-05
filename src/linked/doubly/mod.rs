@@ -209,7 +209,7 @@ impl<T> DoublyLinkedList<T> {
     /// ```
     #[inline]
     pub fn push_front(&mut self, value: T) {
-        let mut new_node = Node::new(value).into_box();
+        let mut new_node = Node::new(value);
         new_node.next = self.head;
         
         let node_ptr = Some(new_node.into_non_null());
@@ -238,7 +238,7 @@ impl<T> DoublyLinkedList<T> {
     /// ```
     #[inline]
     pub fn push_back(&mut self, value: T) {
-        let mut new_node = Node::new(value).into_box();
+        let mut new_node = Node::new(value);
         new_node.prev = self.tail;
         
         let node_ptr = Some(new_node.into_non_null());

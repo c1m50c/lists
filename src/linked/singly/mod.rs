@@ -204,7 +204,7 @@ impl<T> SinglyLinkedList<T> {
     /// ```
     #[inline]
     pub fn push_front(&mut self, value: T) {
-        let mut new_node = Node::new(value).into_box();
+        let mut new_node = Node::new(value);
         new_node.next = self.head;
 
         let ptr = new_node.into_non_null();

@@ -128,7 +128,7 @@ fn from_iter() {
 
 #[test]
 fn node_into() {
-    let boxed = Node::new(5).into_box();
+    let boxed: Box<Node<i32>> = Node::new(5).into();
     let ptr = Node::new(5).into_non_null();
     
     assert_eq!(boxed.value, 5);

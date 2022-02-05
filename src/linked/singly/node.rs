@@ -35,18 +35,6 @@ impl<T> Node<T> {
         };
     }
 
-    /// Converts the [`Node`] into a [`Box`]-ed version of the [`Node`].
-    /// 
-    /// ## Example
-    /// ```rust
-    /// let boxed_node = Node::new(5).into_box();
-    /// assert_eq!(boxed_node, Box::new(Node::new(5)));
-    /// ```
-    #[inline]
-    pub fn into_box(self) -> Box<Self> {
-        return Box::new(self);
-    }
-
     /// Converts the [`Node`] into a [`Box`], then converts the [`Box`] into a [`NonNull`] of the [`Node`].
     /// 
     /// ## Example
@@ -61,7 +49,7 @@ impl<T> Node<T> {
     /// - Converts the [`Node`] into a [`Box`] before [`NonNull`] conversion, `ptr` should always be valid.
     #[inline]
     pub fn into_non_null(self) -> NonNull<Self> {
-        return unsafe { NonNull::new_unchecked(Box::into_raw(self.into_box())) };
+        return unsafe { NonNull::new_unchecked(Box::into_raw(self.into())) };
     }
 }
 

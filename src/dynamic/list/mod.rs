@@ -44,7 +44,6 @@ pub struct List<T> {
 }
 
 
-#[allow(dead_code)]
 impl<T> List<T> {
     /// Creates a new, and empty [`List`].
     #[inline]
@@ -111,75 +110,67 @@ impl<T> List<T> {
     /// assert_eq!(list, list![1, 2, 3]);
     /// ```
     pub fn push(&mut self, value: T) {
+        /*
+            TODO:
+            - Cleanup Code
+            - Allow zero-sized types
+        */
         assert!(size_of::<T>() > 0, "Zero-sized types are not allowed.");
         
-        // Initialize allocation
         if self.capacity == 0 {
             let layout = alloc::Layout::array::<T>(INITIAL_CAPACITY)
-                .expect("Could not allocate memory."); // TODO: More verbose panic message.
+                .expect("Could not allocate memory.");
             
-            // SAFETY: Layout is hardcoded to be `INITIAL_CAPACITY * size_of<T>`, and `size_of<T> > 0`.
-            let ptr = unsafe { alloc::alloc(layout) } as *mut T;
+            let ptr = NonNull::new(
+                unsafe { alloc::alloc(layout) } as *mut T
+            ).expect("Could not allocate memory.");
 
-            let ptr = NonNull::new(ptr)
-                .expect("Could not allocate memory."); // TODO: More verbose panic message.
-
-            // SAFETY: `ptr` is non-null and we've allocated enough space for the value.
             unsafe { ptr.as_ptr().write(value); }
             
             self.ptr = ptr;
             self.capacity = INITIAL_CAPACITY;
-            self.len = 1;
         }
 
-        // Push value into allocation
         else if self.len < self.capacity {
             let offset = self.len
                 .checked_mul(size_of::<T>())
-                .expect("Cannot reach memory location."); // TODO: More verbose panic message.
+                .expect("Cannot reach memory location.");
             
-            assert!(offset < isize::MAX as usize, "Wrapped `isize`.");
+            assert!(offset < isize::MAX as usize, "Wrapped `isize`, cannot reach memory location.");
 
-            /*
-                SAFETY:
-                - Offset cannot wrap around
-                - `ptr` is pointing to valid memory
-                - Writing to an offset at `len` is valid
-            */
             unsafe { self.ptr.as_ptr().add(self.len).write(value); }
-
-            self.len += 1;
         }
 
-        // Reallocate & push
         else {
-            debug_assert!(self.len == self.capacity);
-
             let new_capacity = self.capacity.checked_mul(RESIZE_MULTIPLIER)
-                .expect("Capacity wrapped."); // TODO: More verbose panic message.
+                .expect("Capacity wrapped.");
             
-            let new_size = size_of::<T>() * new_capacity;
             let size = size_of::<T>() * self.capacity;
             let align = align_of::<T>();
+            let ptr;
 
             size.checked_add(size % align)
-                .expect("Cannot allocate memory."); // TODO: More verbose panic message.
+                .expect("Cannot reallocate memory.");
     
             unsafe {
                 let layout = alloc::Layout::from_size_align_unchecked(size, align);
 
-                let ptr = alloc::realloc(self.ptr.as_ptr() as *mut u8, layout, new_size);
-
-                let ptr = NonNull::new(ptr as *mut T)
-                    .expect("Could not reallocate."); // TODO: More verbose panic message.
+                ptr = NonNull::new(
+                    alloc::realloc(
+                        self.ptr.as_ptr() as *mut u8,
+                        layout,
+                        size_of::<T>() * new_capacity
+                    ) as *mut T
+                ).expect("Cannot reallocate memory.");
                 
                 ptr.as_ptr().add(self.len).write(value);
-                self.ptr = ptr;
             }
 
-            self.len += 1;
+            self.ptr = ptr;
             self.capacity = new_capacity;
         }
+
+        self.len += 1;
     }
 
     /// Shortens the [`List`], keeping the first `len` items and dropping the rest.

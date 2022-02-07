@@ -107,3 +107,12 @@ fn with_capacity() {
     list.push(4);
     assert!(list.capacity() > 3);
 }
+
+
+#[test]
+fn from_iter() {
+    let list = [1, 2, 3].iter()
+        .collect::<List<&i32>>();
+    
+    assert_eq!(list, list![&1, &2, &3]);
+}

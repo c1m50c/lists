@@ -13,6 +13,7 @@ mod tests;
 
 
 use core::ptr::{NonNull, slice_from_raw_parts_mut};
+use core::iter::{IntoIterator, FromIterator};
 use core::slice::from_raw_parts_mut;
 use core::mem::{size_of, align_of};
 use core::ops::{Index, IndexMut};
@@ -408,3 +409,13 @@ impl<T: PartialEq> PartialEq for List<T> {
 
 
 impl<T: Eq> Eq for List<T> {  }
+
+
+impl<T> FromIterator<T> for List<T> {
+    #[inline]
+    fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
+        let mut list = List::new();
+        for value in iter { list.push(value); }
+        return list;
+    }
+}

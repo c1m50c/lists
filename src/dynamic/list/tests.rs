@@ -95,3 +95,15 @@ fn front_back() {
     assert_eq!(list.front(), Some(&"FRONT"));
     assert_eq!(list.back(), Some(&"BACK"));
 }
+
+
+#[test]
+fn with_capacity() {
+    let mut list = List::with_capacity(3);
+
+    list.push(1); list.push(2); list.push(3);
+    assert_eq!(list.capacity(), 3);
+
+    list.push(4);
+    assert!(list.capacity() > 3);
+}

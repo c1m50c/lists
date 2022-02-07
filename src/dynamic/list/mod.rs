@@ -97,6 +97,38 @@ impl<T> List<T> {
         self.truncate(0);
     }
 
+    /// Creates a new [`List`] with a specified `capacity`, the list will not reallocate until the `capacity` has been met.
+    /// 
+    /// ## Example
+    /// ```rust
+    /// let mut list = List::with_capacity(3);
+    /// 
+    /// list.push(1); list.push(5); list.push(9);
+    /// assert_eq!(list.capacity(), 3);
+    /// 
+    /// list.push(4);
+    /// assert!(list.capcity() > 3);
+    /// ```
+    #[inline]
+    pub fn with_capacity(capacity: usize) -> Self {
+        /* TODO: Allow zero-sized types */
+        assert!(size_of::<T>() > 0, "Zero-sized types are not allowed.");
+        
+        let mut list = Self::new();
+
+        let layout = alloc::Layout::array::<T>(capacity)
+            .expect("Could not allocate memory.");
+        
+        let ptr = NonNull::new(
+            unsafe { alloc::alloc(layout) } as *mut T
+        ).expect("Could not allocate memory");
+
+        list.ptr = ptr;
+        list.capacity = capacity;
+
+        return list;
+    }
+
     /// Appends a new `value` into the [`List`].
     /// 
     /// ## Example
@@ -115,8 +147,9 @@ impl<T> List<T> {
             - Cleanup Code
             - Allow zero-sized types
         */
-        assert!(size_of::<T>() > 0, "Zero-sized types are not allowed.");
         
+        assert!(size_of::<T>() > 0, "Zero-sized types are not allowed.");
+
         if self.capacity == 0 {
             let layout = alloc::Layout::array::<T>(INITIAL_CAPACITY)
                 .expect("Could not allocate memory.");
